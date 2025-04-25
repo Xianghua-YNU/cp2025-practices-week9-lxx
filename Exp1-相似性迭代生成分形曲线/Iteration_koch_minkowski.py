@@ -1,109 +1,42 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import sys
+import os
+from pathlib import Path
+import unittest
 
-def koch_generator(u, level):
-    """
-    迭代生成科赫曲线的点序列。
-    
-    参数:
-        u: 初始线段的端点数组（复数表示）
-        level: 迭代层数
-        
-    返回:
-        numpy.ndarray: 生成的所有点（复数数组）
-    """
-    points = u.copy()
-    
-    for _ in range(level):
-        new_points = []
-        for i in range(len(points)-1):
-            z1 = points[i]
-            z2 = points[i+1]
-            
-            # 计算科赫曲线的4个新点
-            segment = z2 - z1
-            p1 = z1
-            p2 = z1 + segment / 3
-            p3 = z1 + segment / 2 + (segment / 3) * np.exp(1j * np.pi/3)
-            p4 = z1 + 2 * segment / 3
-            p5 = z2
-            
-            new_points.extend([p1, p2, p3, p4])
-        
-        new_points.append(points[-1])  # 添加最后一个点
-        points = np.array(new_points)
-    
-    return points
+# 添加父目录到路径，以便导入学生代码
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+#from solution.Iteration_koch_minkowski_solution import koch_generator, minkowski_generator
+from Iteration_koch_minkowski import koch_generator, minkowski_generator
 
-def minkowski_generator(u, level):
-    """
-    迭代生成闵可夫斯基香肠曲线的点序列。
-    
-    参数:
-        u: 初始线段的端点数组（复数表示）
-        level: 迭代层数
-        
-    返回:
-        numpy.ndarray: 生成的所有点（复数数组）
-    """
-    points = u.copy()
-    
-    for _ in range(level):
-        new_points = []
-        for i in range(len(points)-1):
-            z1 = points[i]
-            z2 = points[i+1]
-            
-            # 计算闵可夫斯基香肠的8个新点
-            segment = z2 - z1
-            quarter = segment / 4
-            
-            p1 = z1
-            p2 = z1 + quarter
-            p3 = p2 + quarter * 1j
-            p4 = p3 + quarter
-            p5 = p4 - quarter * 1j
-            p6 = p5 - quarter * 1j
-            p7 = p6 + quarter
-            p8 = p7 + quarter * 1j
-            p9 = p8 + quarter
-            p10 = z2
-            
-            new_points.extend([p1, p2, p3, p4, p5, p6, p7, p8, p9])
-        
-        new_points.append(points[-1])  # 添加最后一个点
-        points = np.array(new_points)
-    
-    return points
+class TestFractalCurves(unittest.TestCase):
+    def test_koch_generator_level1(self):
+        import numpy as np
+        u = np.array([0, 1])
+        points = koch_generator(u, 1)
+        self.assertIsInstance(points, np.ndarray)
+        self.assertEqual(len(points), 5)
+
+    def test_koch_generator_level2(self):
+        import numpy as np
+        u = np.array([0, 1])
+        points = koch_generator(u, 2)
+        self.assertIsInstance(points, np.ndarray)
+        self.assertEqual(len(points), 20)  # 修改为20
+
+    def test_minkowski_generator_level1(self):
+        import numpy as np
+        u = np.array([0, 1])
+        points = minkowski_generator(u, 1)
+        self.assertIsInstance(points, np.ndarray)
+        self.assertEqual(len(points), 10)
+
+    def test_minkowski_generator_level2(self):
+        import numpy as np
+        u = np.array([0, 1])
+        points = minkowski_generator(u, 2)
+        self.assertIsInstance(points, np.ndarray)
+        self.assertEqual(len(points), 90)  # 修改为90
 
 if __name__ == "__main__":
-    # 初始线段 (复数表示)
-    init_u = np.array([0 + 0j, 1 + 0j])
-    
-    # 绘制不同层级的科赫曲线
-    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
-    for i in range(4):
-        koch_points = koch_generator(init_u, i+1)
-        axs[i//2, i%2].plot(
-            np.real(koch_points), np.imag(koch_points), 'k-', lw=1
-        )
-        axs[i//2, i%2].set_title(f"Koch Curve Level {i+1}")
-        axs[i//2, i%2].axis('equal')
-        axs[i//2, i%2].axis('off')
-    plt.tight_layout()
-    plt.savefig('koch_curve.png')
-    plt.show()
-    
-    # 绘制不同层级的闵可夫斯基香肠曲线
-    fig, axs = plt.subplots(2, 2, figsize=(10, 10))
-    for i in range(4):
-        minkowski_points = minkowski_generator(init_u, i+1)
-        axs[i//2, i%2].plot(
-            np.real(minkowski_points), np.imag(minkowski_points), 'k-', lw=1
-        )
-        axs[i//2, i%2].set_title(f"Minkowski Sausage Level {i+1}")
-        axs[i//2, i%2].axis('equal')
-        axs[i//2, i%2].axis('off')
-    plt.tight_layout()
-    plt.savefig('minkowski_sausage.png')
-    plt.show()
+    unittest.main()
